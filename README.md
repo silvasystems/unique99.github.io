@@ -4,19 +4,42 @@ Unique 99 is a Commander deck uniqueness scoring tool.
 
 Paste a Commander decklist, analyze card popularity using Scryfall EDHREC rank data, and get a uniqueness score out of 100.
 
-## Current Version
+## Project Structure
 
-Static HTML prototype.
+```txt
+unique99/
+  index.html
+  styles.css
+  app.js
+  assets/
+    mana-w.png
+    mana-u.png
+    mana-b.png
+    mana-r.png
+    mana-g.png
+```
 
-## Files
+## Local Testing
 
-- `index.html` - Main app file
+Open `index.html` in your browser.
 
-## Deploy
+## Deploying on Vercel
 
-This project can be deployed as a static site on Vercel.
+This is still a static site.
 
-For Vercel:
+Recommended Vercel settings:
+
 - Framework Preset: Other
-- Build Command: Leave empty
-- Output Directory: Leave empty or `.`
+- Build Command: leave empty
+- Output Directory: leave empty or `.`
+- Install Command: leave empty
+
+## Notes
+
+Scryfall lookups are still handled in the browser through `app.js`.
+
+Future upgrade path:
+- Add a backend/API route for Scryfall lookup
+- Cache card data
+- Improve commander art loading
+- Move to Next.js if needed

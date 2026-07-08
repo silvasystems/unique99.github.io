@@ -4,3 +4,8 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Dependencies, for future Next.js upgrade
+node_modules/
+.next/
+.vercel/
