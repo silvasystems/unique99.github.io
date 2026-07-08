@@ -1359,3 +1359,93 @@
         min-height: 260px;
       }
     }
+
+
+/* Quick polish update */
+.lookup-progress {
+  height: 8px;
+  width: 100%;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.08);
+  margin-top: 8px;
+  display: none;
+}
+
+.lookup-progress.active {
+  display: block;
+}
+
+.lookup-progress div {
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #60a5fa, #3b82f6, #2563eb);
+  box-shadow: 0 0 20px rgba(59,130,246,0.26);
+  transition: width 260ms ease;
+}
+
+.verdict-line {
+  margin: 14px auto 0;
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid rgba(96,165,250,0.22);
+  background: rgba(59,130,246,0.10);
+  color: #dbeafe;
+  border-radius: 999px;
+  padding: 9px 13px;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+}
+
+table tbody tr {
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+table tbody tr:hover:not(.group-row):not(.muted-row) {
+  background: rgba(59,130,246,0.055);
+}
+
+.card-score-hot {
+  color: #93c5fd;
+  font-weight: 900;
+}
+
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -14px;
+  width: 8px;
+  height: 14px;
+  border-radius: 3px;
+  background: #60a5fa;
+  opacity: 0.95;
+  animation: confettiFall 1100ms ease-out forwards;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(-20px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(105vh) rotate(540deg);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .verdict-line {
+    border-radius: 16px;
+    line-height: 1.35;
+  }
+}

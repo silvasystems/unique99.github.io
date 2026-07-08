@@ -98,6 +98,7 @@ const BASIC_LANDS = new Set([
       deckInput.value = "";
       commanderInput.value = "";
       document.getElementById("results").style.display = "none";
+      setLookupProgress(0, parsedCards.length);
       errorBox.style.display = "none";
       statusEl.textContent = "";
     });
@@ -281,7 +282,57 @@ const BASIC_LANDS = new Set([
       return rank ? rank.toLocaleString() : "No Rank";
     }
 
-    async function analyzeDeck() {
+    
+function setLookupProgress(current, total) {
+  const bar = document.getElementById("lookupProgress");
+  const fill = document.getElementById("lookupProgressFill");
+  if (!bar || !fill) return;
+
+  if (!total) {
+    bar.classList.remove("active");
+    fill.style.width = "0%";
+    return;
+  }
+
+  bar.classList.add("active");
+  const pct = Math.max(0, Math.min(100, Math.round((current / total) * 100)));
+  fill.style.width = `${pct}%`;
+}
+
+function hideLookupProgressSoon() {
+  window.setTimeout(() => setLookupProgress(0, 0), 900);
+}
+
+function verdictForScore(score) {
+  if (score <= 20) return "U99 Verdict: Efficient, powerful, and very familiar.";
+  if (score <= 40) return "U99 Verdict: Strong shell, but your staples are doing a lot of the talking.";
+  if (score <= 60) return "U99 Verdict: A healthy mix of staples and personal picks.";
+  if (score <= 80) return "U99 Verdict: This brew has real personality.";
+  return "U99 Verdict: Absolute deep-cut energy.";
+}
+
+function fireConfetti() {
+  const layer = document.getElementById("confettiLayer");
+  if (!layer) return;
+
+  const colors = ["#60a5fa", "#93c5fd", "#3b82f6", "#dbeafe", "#2563eb"];
+  const pieces = 38;
+
+  for (let i = 0; i < pieces; i++) {
+    const piece = document.createElement("span");
+    piece.className = "confetti-piece";
+    piece.style.left = `${Math.random() * 100}%`;
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = `${Math.random() * 220}ms`;
+    piece.style.transform = `rotate(${Math.random() * 180}deg)`;
+    layer.appendChild(piece);
+
+    window.setTimeout(() => piece.remove(), 1600);
+  }
+}
+
+
+async function analyzeDeck() {
       const deckText = deckInput.value.trim();
       const manualCommander = commanderInput.value.trim();
 
@@ -320,6 +371,7 @@ const BASIC_LANDS = new Set([
       for (let i = 0; i < parsedCards.length; i++) {
         const name = parsedCards[i];
         statusEl.textContent = `Looking up ${i + 1} of ${parsedCards.length}: ${name}`;
+        setLookupProgress(i + 1, parsedCards.length);
 
         try {
           const card = await fetchCardByName(name);
@@ -372,6 +424,8 @@ const BASIC_LANDS = new Set([
       renderResults(found, missing, score, average, ultraPct, deepPct, parsed.commander);
 
       statusEl.textContent = `Done. Scored ${found.length} cards.`;
+      hideLookupProgressSoon();
+      fireConfetti();
       analyzeBtn.disabled = false;
     }
 
@@ -436,6 +490,8 @@ const BASIC_LANDS = new Set([
       document.getElementById("scoreFill").style.width = `${score}%`;
       document.getElementById("scoreLabel").textContent = labelForScore(score);
       document.getElementById("summaryText").textContent = summaryForScore(score);
+      const verdictEl = document.getElementById("verdictText");
+      if (verdictEl) verdictEl.textContent = verdictForScore(score);
 
       const rankedCards = cards.filter(card => card.edhrec_rank);
       const avgRank = rankedCards.length
@@ -726,7 +782,7 @@ const buckets = [
         <td><a href="${card.scryfall_uri}" target="_blank" rel="noopener noreferrer">${escapeHtml(card.name)}</a></td>
         <td>${formatRank(card.edhrec_rank)}</td>
         <td>${card.category}</td>
-        <td>${card.points} / 100</td>
+        <td><span class="card-score-hot">${card.points}</span> / 100</td>
       `;
       return row;
     }
@@ -748,7 +804,7 @@ const buckets = [
         row.innerHTML = `
           <td><a href="${card.scryfall_uri}" target="_blank" rel="noopener noreferrer">${escapeHtml(card.name)}</a></td>
           <td>${formatRank(card.edhrec_rank)}</td>
-          <td>${card.points} / 100</td>
+          <td><span class="card-score-hot">${card.points}</span> / 100</td>
         `;
         container.appendChild(row);
       });
@@ -771,7 +827,7 @@ const buckets = [
           <td><a href="${card.scryfall_uri}" target="_blank" rel="noopener noreferrer" style="color: inherit;">${escapeHtml(card.name)}</a></td>
           <td>${formatRank(card.edhrec_rank)}</td>
           <td>${card.category}</td>
-          <td>${card.points} / 100</td>
+          <td><span class="card-score-hot">${card.points}</span> / 100</td>
         `;
         container.appendChild(row);
       });

@@ -43,3 +43,13 @@ Future upgrade path:
 - Cache card data
 - Improve commander art loading
 - Move to Next.js if needed
+
+
+## Quick Polish Update
+
+Added:
+- lookup progress bar
+- small confetti burst after analysis
+- U99 verdict line
+- readable score emphasis in reports
+- favicon
