@@ -451,7 +451,7 @@ async function analyzeDeck() {
         colors = getFallbackDeckColors(cards);
       }
 
-      colorPips.querySelectorAll(".mana-pip, .mana-symbol").forEach(symbol => {
+      colorPips.querySelectorAll(".mana-symbol, .mana-pip").forEach(symbol => {
         const color = symbol.dataset.color;
         symbol.classList.toggle("inactive", !colors.includes(color));
       });

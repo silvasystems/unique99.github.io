@@ -29,3 +29,18 @@ Recommended Vercel settings:
 - Build Command: leave empty
 - Output Directory: leave empty or `.`
 - Install Command: leave empty
+
+
+## Mana Symbol Assets
+
+This build expects these files inside the `assets` folder:
+
+```txt
+assets/mana-w.png
+assets/mana-u.png
+assets/mana-b.png
+assets/mana-r.png
+assets/mana-g.png
+```
+
+Do not upload these mana files to the root of the repository. They must be inside `assets/`.
