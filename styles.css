@@ -1740,3 +1740,117 @@ body {
     height: 27px !important;
   }
 }
+
+
+
+/* Feedback round layout cleanup */
+:root {
+  --blue: #00A3FF;
+  --blue-2: #38BDF8;
+  --blue-3: #7DD3FC;
+}
+
+.logo span {
+  color: #ffffff;
+}
+
+.deck-glance-title {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 18px;
+  color: #f8fafc;
+}
+
+.score-guide-note,
+.report-helper {
+  text-align: center;
+  max-width: 880px;
+  margin: -6px auto 22px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.score-help {
+  margin: 14px auto 10px;
+  max-width: 310px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.verdict-line {
+  margin-top: 10px;
+}
+
+.formula-note.normal-note {
+  text-align: left;
+  line-height: 1.55;
+  border-radius: 16px;
+}
+
+.formula-note.normal-note strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.score-explainer .section-title {
+  text-align: center;
+}
+
+.score-mini-fill,
+.bar-fill,
+.lookup-progress div {
+  background: linear-gradient(90deg, #7DD3FC, #00A3FF, #006BFF);
+}
+
+button.primary {
+  background: linear-gradient(135deg, #7DD3FC, #00A3FF) !important;
+}
+
+.quick-table-grid {
+  margin-top: 18px;
+}
+
+/* Mana asset image pips */
+.color-pips {
+  display: flex;
+  gap: 9px;
+  margin-top: 13px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.mana-symbol {
+  width: 31px !important;
+  height: 31px !important;
+  border-radius: 999px;
+  object-fit: contain;
+  display: block !important;
+  opacity: 1;
+  transition: opacity 180ms ease, filter 180ms ease, transform 180ms ease;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.24);
+}
+
+.mana-symbol:not(.inactive) {
+  opacity: 1;
+  filter: none;
+  transform: scale(1.06);
+}
+
+.mana-symbol.inactive {
+  opacity: 0.22;
+  filter: grayscale(1) brightness(0.72);
+  box-shadow: none;
+  transform: none;
+}
+
+.mana-pip {
+  display: none !important;
+}
+
+@media (max-width: 520px) {
+  .mana-symbol {
+    width: 27px !important;
+    height: 27px !important;
+  }
+}

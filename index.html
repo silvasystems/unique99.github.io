@@ -12,7 +12,7 @@
   <main class="page">
     <header>
       <div class="brand">
-        <div class="logo">U99</div>
+        <div class="logo">U<span>99</span></div>
         <div class="brand-text">
           <strong>Unique 99</strong>
           <span>Commander Deck Uniqueness Score</span>
@@ -24,7 +24,7 @@
       <div class="copy">
         <h1>Score your <span>Commander brew.</span></h1>
         <p>
-          Paste your Commander decklist, get a clear uniqueness score, and instantly see which cards make your 99 feel staple-heavy, personal, or genuinely offbeat.
+          Paste your Commander decklist, get a clear uniqueness score, and instantly see which cards make your 99 feel staple-heavy, personal, or genuinely creative.
         </p>
 
         <div class="mini-grid">
@@ -100,7 +100,6 @@ Example:
             </div>
           </div>
         </div>
-        <div class="score-help">Higher score = more unique deck. Each card contributes a <strong>Card Uniqueness Score</strong> based on its EDHREC rank.</div>
 
         <div class="premium-score-card no-art" id="scoreShowcase">
           <div class="premium-score-inner">
@@ -119,6 +118,8 @@ Example:
         </div>
 
         <p class="summary" id="summaryText"></p>
+        
+        <div class="score-help">Higher score = more unique deck. Each card contributes a <strong>Card Uniqueness Score</strong> based on its EDHREC rank.</div>
         <div class="verdict-line" id="verdictText">U99 Verdict will appear here.</div>
 
         <div class="stat-grid">
@@ -148,18 +149,20 @@ Example:
           </div>
         </div>
 
-        <div class="formula-note">
-          <strong>How your final deck score is calculated</strong>
+
+        <div class="formula-note normal-note">
+          <strong>How your deck score is calculated</strong>
           Each non-basic card gets a <strong>Card Uniqueness Score</strong> from 1 to 100 based on its EDHREC rank. U99 averages those scores together, then makes a small adjustment if the deck is especially staple-heavy or loaded with deep cuts.
         </div>
 
-        <div class="formula-note">
+
+        <div class="formula-note normal-note">
           <strong>How to raise your score</strong>
           Replace Commander Staples and Commander Favorites with Pet Cards or Unique Sleepers that still support your game plan.
         </div>
 
                 <div class="score-explainer">
-        <h3 class="section-title">Card Score Guide</h3>
+        <h3 class="section-title">How the Score Works</h3>
         <table class="compact-guide-table">
           <thead>
             <tr>
@@ -208,7 +211,8 @@ Example:
       </div>
 
       <div class="detail-panel">
-        <h3 class="section-title centered-title">How the Score Works</h3>
+        <h2 class="section-title deck-glance-title">Deck at a Glance</h2>
+        <h3 class="section-title centered-title">Card Score Guide</h3>
         <div class="score-guide">
           <div class="guide-card"><strong>0-20</strong>Netdeck Energy</div>
           <div class="guide-card"><strong>21-40</strong>Staple Heavy</div>
@@ -216,21 +220,11 @@ Example:
           <div class="guide-card"><strong>61-80</strong>Unique Brew</div>
           <div class="guide-card"><strong>81-100</strong>Certified Jank Genius</div>
         </div>
-
-        <div class="helper-note">
-          Use the report filters below to sort by card score, EDHREC rank, card type, or score category. Lower card scores mean more common cards. Higher card scores mean more unique cards.
-        </div>
-
-
-        <h3 class="section-title centered-title">Deck Identity</h3>
-        <div class="identity-box" id="deckIdentityBox">
-          <strong id="deckIdentityTitle">Familiar Foundation</strong>
-          <p id="deckIdentityText">This deck leans on a lot of popular Commander cards, but still has room to carve out its own identity.</p>
-        </div>
+        <div class="helper-note score-guide-note">Lower card scores are more common cards. Higher card scores are more unique cards.</div>
 
         <div class="quick-table-grid">
           <div>
-            <h3 class="section-title centered-title">Cards Lowering Your Score</h3>
+            <h3 class="section-title centered-title">Most Common Cards</h3>
             <table class="compact-table">
               <thead>
                 <tr>
@@ -244,7 +238,7 @@ Example:
           </div>
 
           <div>
-            <h3 class="section-title centered-title">Cards Carrying Your Uniqueness</h3>
+            <h3 class="section-title centered-title">Most Unique Cards</h3>
             <table class="compact-table">
               <thead>
                 <tr>
@@ -262,6 +256,9 @@ Example:
         <div class="bars" id="breakdownBars"></div>
 
         <h3 class="section-title centered-title">Full Card Report</h3>
+        <div class="helper-note report-helper">
+          Use the report filters below to sort by card score, EDHREC rank, card type, or score category.
+        </div>
 
         <div class="report-controls">
           <input id="reportSearch" type="text" placeholder="Search card name..." />

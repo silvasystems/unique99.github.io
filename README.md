@@ -44,3 +44,14 @@ assets/mana-g.png
 ```
 
 Do not upload these mana files to the root of the repository. They must be inside `assets/`.
+
+
+## Feedback Round Update
+
+Layout changes:
+- Left side now prioritizes commander identity, score, verdict, stats, and score explanation.
+- Right side starts with Deck at a Glance.
+- Removed Deck Identity section.
+- Renamed quick tables to Most Common Cards and Most Unique Cards.
+- Moved report filter explanation under Full Card Report.
+- Tried brighter neon blue theme.

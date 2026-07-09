@@ -505,14 +505,6 @@ async function analyzeDeck() {
       document.getElementById("deepPercent").textContent = `${Math.round(deepPct * 100)}%`;
       document.getElementById("cardsMissed").textContent = missing.length;
 
-      const identity = identityForDeck(score, staplePct, deepPct);
-      const identityTitle = document.getElementById("deckIdentityTitle");
-      const identityText = document.getElementById("deckIdentityText");
-      if (identityTitle && identityText) {
-        identityTitle.textContent = identity.title;
-        identityText.textContent = identity.text;
-      }
-
       const genericCards = [...cards]
         .filter(card => card.edhrec_rank)
         .sort((a, b) => a.edhrec_rank - b.edhrec_rank)

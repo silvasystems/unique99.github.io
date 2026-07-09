@@ -1,0 +1,1 @@
+Place mana-w.png, mana-u.png, mana-b.png, mana-r.png, and mana-g.png in this folder.
