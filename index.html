@@ -62,6 +62,36 @@
             Leave this blank and U99 will try to detect your commander from a “Commander” section. Commander art is used visually, but the commander does not change the score yet.
           </div>
 
+
+          <div class="compare-mode-card">
+            <div class="compare-mode-title">Compare Mode</div>
+            <div class="compare-options">
+              <label class="compare-option active">
+                <input type="radio" name="compareMode" value="global" checked />
+                <span>
+                  <strong>All Commander Decks</strong>
+                  <em>Global EDHREC rank</em>
+                </span>
+              </label>
+
+              <label class="compare-option">
+                <input type="radio" name="compareMode" value="commanderAware" />
+                <span>
+                  <strong>Commander-Aware</strong>
+                  <em>Experimental synergy adjustment</em>
+                </span>
+              </label>
+
+              <label class="compare-option disabled">
+                <input type="radio" name="compareMode" value="commanderSpecific" disabled />
+                <span>
+                  <strong>This Commander</strong>
+                  <em>Coming soon with better data</em>
+                </span>
+              </label>
+            </div>
+          </div>
+
           <label for="deckInput">Decklist</label>
           <textarea id="deckInput" spellcheck="false" placeholder="Paste your Commander decklist here...
 
@@ -175,37 +205,37 @@ Example:
             <tr>
               <td>Commander Staples</td>
               <td>1-500</td>
-              <td>1-20</td>
+              <td>1-15</td>
             </tr>
             <tr>
               <td>Commander Favorites</td>
-              <td>501-2,000</td>
-              <td>21-40</td>
+              <td>501-2,500</td>
+              <td>16-35</td>
             </tr>
             <tr>
               <td>Playables</td>
-              <td>2,001-7,500</td>
-              <td>41-60</td>
+              <td>2,501-8,000</td>
+              <td>36-55</td>
             </tr>
             <tr>
               <td>Pet Cards</td>
-              <td>7,501-15,000</td>
-              <td>61-80</td>
+              <td>8,001-16,000</td>
+              <td>56-75</td>
             </tr>
             <tr>
               <td>Unique Sleepers</td>
-              <td>15,001+</td>
-              <td>81-95</td>
+              <td>16,001-31,000</td>
+              <td>76-95</td>
             </tr>
             <tr>
               <td>No Rank</td>
               <td>None</td>
-              <td>96</td>
+              <td>96-100</td>
             </tr>
           </tbody>
         </table>
         <div class="formula-note small-note">
-          Lower card scores are more common cards. Higher card scores are more unique cards.
+          Lower card scores are more common cards. Higher card scores are more unique cards. Commander-Aware mode adds a small experimental synergy adjustment.
         </div>
         </div>
       </div>
@@ -220,7 +250,7 @@ Example:
           <div class="guide-card"><strong>61-80</strong>Unique Brew</div>
           <div class="guide-card"><strong>81-100</strong>Certified Jank Genius</div>
         </div>
-        <div class="helper-note score-guide-note">Lower card scores are more common cards. Higher card scores are more unique cards.</div>
+        <div class="helper-note score-guide-note">Lower card scores are more common cards. Higher card scores are more unique cards. Commander-Aware mode adds a small experimental synergy adjustment.</div>
 
         <div class="quick-table-grid">
           <div>
@@ -314,6 +344,36 @@ Example:
           </thead>
           <tbody id="cardTable"></tbody>
         </table>
+
+        <h3 class="section-title centered-title">Suggested Adds</h3>
+        <div class="helper-note suggestions-helper">
+          Experimental suggestions based on color identity, card text, deck themes, EDHREC rank, and what is not already in your list.
+        </div>
+
+        <div class="suggestion-grid">
+          <div class="suggestion-panel">
+            <h4>Synergy Picks</h4>
+            <div id="synergySuggestions" class="suggestion-list">
+              <div class="suggestion-empty">Analyze a deck to see suggestions.</div>
+            </div>
+          </div>
+
+          <div class="suggestion-panel">
+            <h4>Unique Picks</h4>
+            <div id="uniqueSuggestions" class="suggestion-list">
+              <div class="suggestion-empty">Analyze a deck to see suggestions.</div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="section-title centered-title">Swap Ideas</h3>
+        <div class="helper-note suggestions-helper">
+          These are simple starting points: common cards from your deck paired with more unique or more synergistic cards to consider.
+        </div>
+        <div id="swapSuggestions" class="swap-list">
+          <div class="suggestion-empty">Analyze a deck to see swap ideas.</div>
+        </div>
+
       </div>
     </section>
   </main>

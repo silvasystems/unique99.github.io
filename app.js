@@ -200,7 +200,7 @@ const BASIC_LANDS = new Set([
       if (!rank) {
         return {
           category: "No Rank",
-          points: 96,
+          points: 98,
           bucket: "No Rank"
         };
       }
@@ -208,38 +208,38 @@ const BASIC_LANDS = new Set([
       if (rank <= 500) {
         return {
           category: "Commander Staples",
-          points: interpolateScore(rank, 1, 500, 1, 20),
+          points: interpolateScore(rank, 1, 500, 1, 15),
           bucket: "Commander Staples"
         };
       }
 
-      if (rank <= 2000) {
+      if (rank <= 2500) {
         return {
           category: "Commander Favorites",
-          points: interpolateScore(rank, 501, 2000, 21, 40),
+          points: interpolateScore(rank, 501, 2500, 16, 35),
           bucket: "Commander Favorites"
         };
       }
 
-      if (rank <= 7500) {
+      if (rank <= 8000) {
         return {
           category: "Playables",
-          points: interpolateScore(rank, 2001, 7500, 41, 60),
+          points: interpolateScore(rank, 2501, 8000, 36, 55),
           bucket: "Playables"
         };
       }
 
-      if (rank <= 15000) {
+      if (rank <= 16000) {
         return {
           category: "Pet Cards",
-          points: interpolateScore(rank, 7501, 15000, 61, 80),
+          points: interpolateScore(rank, 8001, 16000, 56, 75),
           bucket: "Pet Cards"
         };
       }
 
       return {
         category: "Unique Sleepers",
-        points: interpolateScore(Math.min(rank, 40000), 15001, 40000, 81, 95),
+        points: interpolateScore(Math.min(rank, 31000), 16001, 31000, 76, 95),
         bucket: "Unique Sleepers"
       };
     }
@@ -335,6 +335,7 @@ function fireConfetti() {
 async function analyzeDeck() {
       const deckText = deckInput.value.trim();
       const manualCommander = commanderInput.value.trim();
+      const compareMode = document.querySelector('input[name="compareMode"]:checked')?.value || "global";
 
       if (!deckText) {
         statusEl.textContent = "Paste a decklist first.";
@@ -382,6 +383,7 @@ async function analyzeDeck() {
             name: card.name,
             edhrec_rank: card.edhrec_rank || null,
             points: scoring.points,
+            base_points: scoring.points,
             category: scoring.category,
             bucket: scoring.bucket,
             type_line: card.type_line || "",
@@ -404,6 +406,18 @@ async function analyzeDeck() {
         return;
       }
 
+      if (compareMode === "commanderAware") {
+        applyCommanderAwareScores(found, commanderCard);
+      }
+
+      let suggestions = { synergy: [], unique: [], swaps: [] };
+      try {
+        statusEl.textContent = "Finding suggested adds...";
+        suggestions = await buildSuggestions(found, commanderCard);
+      } catch (error) {
+        suggestions = { synergy: [], unique: [], swaps: [] };
+      }
+
       const average = found.reduce((sum, card) => sum + card.points, 0) / found.length;
       const ultraCount = found.filter(card => card.bucket === "Commander Staples").length;
       const deepCount = found.filter(card => card.bucket === "Unique Sleepers" || card.bucket === "No Rank").length;
@@ -421,7 +435,7 @@ async function analyzeDeck() {
 
       score = Math.max(0, Math.min(100, score));
 
-      renderResults(found, missing, score, average, ultraPct, deepPct, parsed.commander);
+      renderResults(found, missing, score, average, ultraPct, deepPct, parsed.commander, commanderCard, compareMode, suggestions);
 
       statusEl.textContent = `Done. Scored ${found.length} cards.`;
       hideLookupProgressSoon();
@@ -457,7 +471,252 @@ async function analyzeDeck() {
       });
     }
 
-    function renderResults(cards, missing, score, averagePoints, staplePct, deepPct, commander, commanderCard) {
+    
+    const THEME_KEYWORDS = [
+      { key: "damage", terms: ["damage", "deals damage", "noncombat damage", "double"], query: "damage" },
+      { key: "discard", terms: ["discard", "draw then discard"], query: "discard" },
+      { key: "draw", terms: ["draw a card", "draw cards", "card draw"], query: "draw" },
+      { key: "treasure", terms: ["treasure"], query: "treasure" },
+      { key: "attack", terms: ["attack", "attacks", "combat"], query: "attack" },
+      { key: "copy", terms: ["copy", "copies", "token that's a copy"], query: "copy" },
+      { key: "sacrifice", terms: ["sacrifice", "dies", "death"], query: "sacrifice" },
+      { key: "graveyard", terms: ["graveyard", "return from your graveyard"], query: "graveyard" },
+      { key: "tokens", terms: ["token", "tokens"], query: "token" },
+      { key: "artifacts", terms: ["artifact", "artifacts"], query: "artifact" },
+      { key: "spells", terms: ["instant", "sorcery", "cast"], query: "instant" },
+      { key: "counters", terms: ["counter", "counters", "+1/+1"], query: "counter" },
+      { key: "lifegain", terms: ["gain life", "lifelink"], query: "life" }
+    ];
+
+    function getDeckText(cards, commanderCard) {
+      const pieces = [];
+      if (commanderCard) {
+        pieces.push(commanderCard.oracle_text || "");
+        if (Array.isArray(commanderCard.card_faces)) {
+          commanderCard.card_faces.forEach(face => pieces.push(face.oracle_text || ""));
+        }
+      }
+      cards.forEach(card => pieces.push(card.oracle_text || "", card.type_line || ""));
+      return pieces.join(" ").toLowerCase();
+    }
+
+    function getDeckThemes(cards, commanderCard) {
+      const text = getDeckText(cards, commanderCard);
+      const scored = THEME_KEYWORDS.map(theme => {
+        const count = theme.terms.reduce((sum, term) => {
+          return sum + (text.split(term.toLowerCase()).length - 1);
+        }, 0);
+        return { ...theme, count };
+      }).filter(theme => theme.count > 0)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 4);
+
+      return scored.length ? scored : [{ key: "value", terms: ["draw", "damage", "token"], query: "draw" }];
+    }
+
+    function countThemeMatches(card, themes) {
+      const text = `${card.oracle_text || ""} ${card.type_line || ""}`.toLowerCase();
+      let matches = 0;
+      themes.forEach(theme => {
+        if (theme.terms.some(term => text.includes(term.toLowerCase()))) {
+          matches += 1;
+        }
+      });
+      return matches;
+    }
+
+    function clampScore(value) {
+      return Math.max(1, Math.min(100, Math.round(value)));
+    }
+
+    function applyCommanderAwareScores(cards, commanderCard) {
+      const themes = getDeckThemes(cards, commanderCard);
+      const colors = commanderCard && Array.isArray(commanderCard.color_identity) && commanderCard.color_identity.length
+        ? commanderCard.color_identity
+        : getFallbackDeckColors(cards);
+
+      cards.forEach(card => {
+        const base = card.base_points || card.points;
+        const themeMatches = countThemeMatches(card, themes);
+        const colorMatches = !colors.length || (Array.isArray(card.color_identity) && card.color_identity.every(color => colors.includes(color)));
+        let adjustment = Math.min(10, themeMatches * 4);
+        if (colorMatches) adjustment += 2;
+        if (!themeMatches && card.category === "Commander Staples") adjustment -= 2;
+
+        card.points = clampScore(base + adjustment);
+        card.mode_note = themeMatches
+          ? `Matches ${themeMatches} detected deck theme${themeMatches === 1 ? "" : "s"}.`
+          : "No major theme match detected.";
+      });
+    }
+
+    function colorQueryForSuggestions(cards, commanderCard) {
+      const colors = commanderCard && Array.isArray(commanderCard.color_identity) && commanderCard.color_identity.length
+        ? commanderCard.color_identity
+        : getFallbackDeckColors(cards);
+
+      return colors.length ? `id<=${colors.join("")}` : "";
+    }
+
+    async function searchSuggestionCards(query) {
+      const url = `https://api.scryfall.com/cards/search?order=edhrec&unique=cards&q=${encodeURIComponent(query)}`;
+      const response = await fetch(url, { headers: { "Accept": "application/json" } });
+      if (!response.ok) return [];
+      const data = await response.json();
+      return (data.data || []).slice(0, 18);
+    }
+
+    function suggestionReason(card, themes) {
+      const matches = themes
+        .filter(theme => theme.terms.some(term => `${card.oracle_text || ""} ${card.type_line || ""}`.toLowerCase().includes(term.toLowerCase())))
+        .map(theme => theme.key);
+
+      if (matches.length) {
+        return `Matches your deck's ${matches.slice(0, 2).join(" + ")} theme${matches.length > 1 ? "s" : ""}.`;
+      }
+
+      return "Fits your color identity and may be worth testing.";
+    }
+
+    async function buildSuggestions(cards, commanderCard) {
+      const existing = new Set(cards.map(card => card.name.toLowerCase()));
+      const themes = getDeckThemes(cards, commanderCard);
+      const colorQuery = colorQueryForSuggestions(cards, commanderCard);
+      const candidates = new Map();
+
+      const queries = themes.slice(0, 4).map(theme => {
+        return `legal:commander ${colorQuery} -t:basic -is:funny o:"${theme.query}"`.trim();
+      });
+
+      if (!queries.length) {
+        queries.push(`legal:commander ${colorQuery} -t:basic -is:funny`.trim());
+      }
+
+      for (const query of queries) {
+        const results = await searchSuggestionCards(query);
+        results.forEach(card => {
+          if (!card.name || existing.has(card.name.toLowerCase())) return;
+          if (card.type_line && card.type_line.includes("Basic Land")) return;
+          candidates.set(card.name, card);
+        });
+        await sleep(160);
+      }
+
+      const scored = [...candidates.values()].map(card => {
+        const rankScore = scoreFromRank(card.edhrec_rank);
+        const tempCard = {
+          name: card.name,
+          edhrec_rank: card.edhrec_rank || null,
+          type_line: card.type_line || "",
+          oracle_text: card.oracle_text || "",
+          color_identity: card.color_identity || [],
+          scryfall_uri: card.scryfall_uri || "#"
+        };
+        const matches = countThemeMatches(tempCard, themes);
+        const synergyScore = matches * 25 + (card.edhrec_rank ? Math.max(0, 20 - Math.floor(card.edhrec_rank / 2500)) : 8);
+
+        return {
+          ...tempCard,
+          points: rankScore.points,
+          category: rankScore.category,
+          synergyScore,
+          reason: suggestionReason(tempCard, themes)
+        };
+      });
+
+      const synergy = [...scored]
+        .sort((a, b) => b.synergyScore - a.synergyScore || b.points - a.points)
+        .slice(0, 5);
+
+      const unique = [...scored]
+        .filter(card => card.points >= 55)
+        .sort((a, b) => b.points - a.points || b.synergyScore - a.synergyScore)
+        .slice(0, 5);
+
+      const commonCards = [...cards]
+        .filter(card => card.edhrec_rank)
+        .sort((a, b) => a.points - b.points || a.edhrec_rank - b.edhrec_rank)
+        .slice(0, 5);
+
+      const swapPool = unique.length ? unique : synergy;
+      const swaps = commonCards.slice(0, Math.min(5, swapPool.length)).map((cut, index) => {
+        const add = swapPool[index % swapPool.length];
+        return { cut, add, note: `${add.reason} This may raise uniqueness while staying close to your deck's plan.` };
+      });
+
+      return { synergy, unique, swaps };
+    }
+
+    function renderCompareModeNote(compareMode) {
+      let note = document.getElementById("compareModeNote");
+      const verdict = document.getElementById("verdictText");
+      if (!verdict) return;
+
+      if (!note) {
+        note = document.createElement("div");
+        note.id = "compareModeNote";
+        note.className = "mode-note";
+        verdict.insertAdjacentElement("afterend", note);
+      }
+
+      if (compareMode === "commanderAware") {
+        note.textContent = "Mode: Commander-Aware Score, experimental synergy adjustment enabled.";
+      } else {
+        note.textContent = "Mode: Comparing against all Commander decks.";
+      }
+    }
+
+    function renderSuggestionCards(containerId, cards) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      if (!cards || !cards.length) {
+        container.innerHTML = `<div class="suggestion-empty">No suggestions found yet. Try again or use a fuller decklist.</div>`;
+        return;
+      }
+
+      container.innerHTML = cards.map(card => `
+        <div class="suggestion-card">
+          <a href="${card.scryfall_uri}" target="_blank" rel="noopener noreferrer">${escapeHtml(card.name)}</a>
+          <div class="suggestion-meta">
+            <span class="suggestion-pill">Score ${card.points}/100</span>
+            <span class="suggestion-pill">${card.category}</span>
+            ${card.edhrec_rank ? `<span class="suggestion-pill">Rank ${formatRank(card.edhrec_rank)}</span>` : `<span class="suggestion-pill">No Rank</span>`}
+          </div>
+          <div class="suggestion-reason">${escapeHtml(card.reason || "Suggested for your deck.")}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderSwapIdeas(swaps) {
+      const container = document.getElementById("swapSuggestions");
+      if (!container) return;
+
+      if (!swaps || !swaps.length) {
+        container.innerHTML = `<div class="suggestion-empty">No swap ideas found yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = swaps.map(swap => `
+        <div class="swap-card">
+          <div class="swap-line">
+            <span>${escapeHtml(swap.cut.name)}</span>
+            <span class="swap-arrow">→</span>
+            <a href="${swap.add.scryfall_uri}" target="_blank" rel="noopener noreferrer">${escapeHtml(swap.add.name)}</a>
+          </div>
+          <div class="swap-note">${escapeHtml(swap.note || "Potential uniqueness upgrade.")}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderSuggestions(suggestions) {
+      renderSuggestionCards("synergySuggestions", suggestions?.synergy || []);
+      renderSuggestionCards("uniqueSuggestions", suggestions?.unique || []);
+      renderSwapIdeas(suggestions?.swaps || []);
+    }
+
+
+    function renderResults(cards, missing, score, averagePoints, staplePct, deepPct, commander, commanderCard, compareMode = 'global', suggestions = { synergy: [], unique: [], swaps: [] }) {
       const results = document.getElementById("results");
       results.style.display = "grid";
 
@@ -492,6 +751,7 @@ async function analyzeDeck() {
       document.getElementById("summaryText").textContent = summaryForScore(score);
       const verdictEl = document.getElementById("verdictText");
       if (verdictEl) verdictEl.textContent = verdictForScore(score);
+      renderCompareModeNote(compareMode);
 
       const rankedCards = cards.filter(card => card.edhrec_rank);
       const avgRank = rankedCards.length
@@ -552,6 +812,7 @@ const buckets = [
       fullReportCards = [...cards];
       resetReportControls();
       renderFullReport();
+      renderSuggestions(suggestions);
 
       if (missing.length) {
         errorBox.style.display = "block";

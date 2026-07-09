@@ -55,3 +55,19 @@ Layout changes:
 - Renamed quick tables to Most Common Cards and Most Unique Cards.
 - Moved report filter explanation under Full Card Report.
 - Tried brighter neon blue theme.
+
+
+## Compare Mode and Suggestions Update
+
+Added:
+- Compare Mode UI
+- All Commander Decks mode
+- Commander-Aware experimental scoring mode
+- This Commander disabled/coming soon mode
+- Updated EDHREC rank scale through 31,000
+- Suggested Adds
+- Synergy Picks
+- Unique Picks
+- Swap Ideas
+
+Backend/API caching is still a future upgrade.
