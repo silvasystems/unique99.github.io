@@ -356,24 +356,23 @@ async function buildSuggestions(cards, commanderCard) {
   const colorQuery = colorQueryForSuggestions(cards, commanderCard);
   const candidates = new Map();
 
-  const queries = themes.slice(0, 4).map(theme => {
+  const synergyQueries = themes.slice(0, 4).map(theme => {
     return `legal:commander ${colorQuery} -t:basic -is:funny o:"${theme.query}"`.trim();
   });
 
-  if (!queries.length) {
-    queries.push(`legal:commander ${colorQuery} -t:basic -is:funny`.trim());
-  }
+  const uniqueQueries = themes.slice(0, 4).map(theme => {
+    return `legal:commander ${colorQuery} -t:basic -is:funny o:"${theme.query}" edhrec>=8000`.trim();
+  });
 
-  for (const query of queries) {
-    const results = await searchSuggestionCards(query);
-    results.forEach(card => {
-      if (!card.name || existing.has(card.name.toLowerCase())) return;
-      if (card.type_line && card.type_line.includes("Basic Land")) return;
-      candidates.set(card.name, card);
-    });
-  }
+  const fallbackUniqueQueries = themes.slice(0, 4).map(theme => {
+    return `legal:commander ${colorQuery} -t:basic -is:funny o:"${theme.query}"`.trim();
+  });
 
-  const scored = [...candidates.values()].map(card => {
+  const addCandidate = (card, sourceType) => {
+    if (!card || !card.name) return;
+    if (existing.has(card.name.toLowerCase())) return;
+    if (card.type_line && card.type_line.includes("Basic Land")) return;
+
     const rankScore = scoreFromRank(card.edhrec_rank);
     const tempCard = {
       name: card.name,
@@ -385,33 +384,76 @@ async function buildSuggestions(cards, commanderCard) {
     };
 
     const matches = countThemeMatches(tempCard, themes);
-    const synergyScore = matches * 25 + (card.edhrec_rank ? Math.max(0, 20 - Math.floor(card.edhrec_rank / 2500)) : 8);
+    if (matches < 1) return;
 
-    return {
+    const isStaple = rankScore.category === "Commander Staples";
+    const isFavorite = rankScore.category === "Commander Favorites";
+
+    const synergyScore = matches * 30
+      + Math.min(18, rankScore.points / 4)
+      + (sourceType === "unique" ? 12 : 0)
+      - (isStaple ? 28 : 0)
+      - (isFavorite ? 12 : 0);
+
+    const current = candidates.get(card.name);
+    const prepared = {
       ...tempCard,
       points: rankScore.points,
       category: rankScore.category,
       synergyScore,
-      reason: suggestionReason(tempCard, themes)
+      themeMatches: matches,
+      reason: suggestionReason(tempCard, themes),
+      sourceType
     };
-  });
 
-  const synergy = [...scored]
+    if (!current || prepared.synergyScore > current.synergyScore) {
+      candidates.set(card.name, prepared);
+    }
+  };
+
+  for (const query of synergyQueries) {
+    const results = await searchSuggestionCards(query);
+    results.forEach(card => addCandidate(card, "synergy"));
+  }
+
+  for (const query of uniqueQueries) {
+    const results = await searchSuggestionCards(query);
+    results.forEach(card => addCandidate(card, "unique"));
+  }
+
+  const scored = [...candidates.values()];
+
+  // If the deep-rank searches return too little, use the normal search pool but still enforce unique thresholds.
+  if (scored.filter(card => card.points >= 55).length < 3) {
+    for (const query of fallbackUniqueQueries) {
+      const results = await searchSuggestionCards(query);
+      results.forEach(card => addCandidate(card, "fallback"));
+    }
+  }
+
+  const allScored = [...candidates.values()];
+
+  const synergy = [...allScored]
+    .filter(card => {
+      if (card.category === "Commander Staples") return card.themeMatches >= 3 && card.points >= 12;
+      if (card.category === "Commander Favorites") return card.themeMatches >= 2 && card.points >= 24;
+      return card.themeMatches >= 1 && card.points >= 36;
+    })
     .sort((a, b) => b.synergyScore - a.synergyScore || b.points - a.points)
     .slice(0, 5);
 
-  const unique = [...scored]
+  const unique = [...allScored]
     .filter(card => card.points >= 55)
-    .sort((a, b) => b.points - a.points || b.synergyScore - a.synergyScore)
+    .filter(card => card.category !== "Commander Staples" && card.category !== "Commander Favorites")
+    .sort((a, b) => b.points - a.points || b.themeMatches - a.themeMatches || b.synergyScore - a.synergyScore)
     .slice(0, 5);
 
   const commonCards = [...cards]
     .filter(card => card.edhrec_rank && card.points <= 35)
     .sort((a, b) => a.points - b.points || a.edhrec_rank - b.edhrec_rank);
 
-  const swapPool = [...scored]
+  const swapPool = [...unique]
     .filter(card => card.points >= 70)
-    .filter(card => card.category !== "Commander Staples" && card.category !== "Commander Favorites")
     .sort((a, b) => b.points - a.points || b.synergyScore - a.synergyScore);
 
   const swaps = [];

@@ -105,3 +105,12 @@ Deploy notes:
 - Keep the static files in the repo root.
 - Keep mana assets inside `assets/`.
 - Vercel should automatically detect and deploy the `api/analyze.js` function.
+
+
+## Suggestion Logic Cleanup
+
+Updated suggestion logic:
+- Synergy Picks now avoid obvious staples when possible.
+- Unique Picks intentionally prioritize deeper EDHREC ranks.
+- Unique Picks filter out Commander Staples and Commander Favorites.
+- Swap Ideas only use Unique Picks that are meaningful uniqueness upgrades.
