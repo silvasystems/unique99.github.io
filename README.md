@@ -128,3 +128,11 @@ Updated:
 - Reordered stat cards.
 - Fixed backend decklist send variable.
 - Combined partner commander color identities for mana symbols when the backend is used.
+
+
+## Compact Compare + Partner Cleanup
+
+Updated:
+- Compare Mode is now three compact cards in one row on desktop.
+- Partner commander input was simplified to one optional box.
+- Unique Sleepers now scale from 76 to 100 instead of stopping at 95.

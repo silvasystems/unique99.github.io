@@ -83,7 +83,6 @@ const BASIC_LANDS = new Set([
     const deckInput = document.getElementById("deckInput");
     const commanderInput = document.getElementById("commanderInput");
     const partnerCommanderInput = document.getElementById("partnerCommanderInput");
-    const partnerCommanderInputTwo = document.getElementById("partnerCommanderInputTwo");
     const analyzeBtn = document.getElementById("analyzeBtn");
     const sampleBtn = document.getElementById("sampleBtn");
     const clearBtn = document.getElementById("clearBtn");
@@ -100,7 +99,6 @@ const BASIC_LANDS = new Set([
       deckInput.value = "";
       commanderInput.value = "";
       if (partnerCommanderInput) partnerCommanderInput.value = "";
-      if (partnerCommanderInputTwo) partnerCommanderInputTwo.value = "";
       document.getElementById("results").style.display = "none";
       setLookupProgress(0, parsedCards.length);
       errorBox.style.display = "none";
@@ -204,7 +202,7 @@ const BASIC_LANDS = new Set([
       if (!rank) {
         return {
           category: "Unique Sleepers",
-          points: 95,
+          points: 100,
           bucket: "Unique Sleepers"
         };
       }
@@ -243,7 +241,7 @@ const BASIC_LANDS = new Set([
 
       return {
         category: "Unique Sleepers",
-        points: interpolateScore(Math.min(rank, 31000), 16001, 31000, 76, 95),
+        points: interpolateScore(Math.min(rank, 31000), 16001, 31000, 76, 100),
         bucket: "Unique Sleepers"
       };
     }
@@ -339,7 +337,7 @@ function fireConfetti() {
 async function analyzeDeck() {
       const deckText = deckInput.value.trim();
       const manualCommander = commanderInput.value.trim();
-      const partnerCommanders = [partnerCommanderInput?.value.trim(), partnerCommanderInputTwo?.value.trim()].filter(Boolean);
+      const partnerCommanders = [partnerCommanderInput?.value.trim()].filter(Boolean);
       const compareMode = document.querySelector('input[name="compareMode"]:checked')?.value || "global";
 
       try {

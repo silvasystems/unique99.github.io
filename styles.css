@@ -2095,3 +2095,56 @@ button.primary {
     grid-template-columns: 1fr;
   }
 }
+
+
+
+/* Compact compare mode and single partner input */
+.compare-mode-card {
+  padding: 12px !important;
+}
+
+.compare-options {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.compare-option {
+  min-height: 84px;
+  padding: 11px 12px !important;
+  align-content: center;
+}
+
+.compare-option strong {
+  font-size: 12px !important;
+  line-height: 1.2;
+}
+
+.compare-option em {
+  font-size: 11px !important;
+  line-height: 1.25;
+}
+
+.single-partner-grid {
+  grid-template-columns: 1fr !important;
+}
+
+.single-partner-grid input {
+  max-width: 100%;
+}
+
+@media (max-width: 780px) {
+  .compare-options {
+    grid-template-columns: 1fr !important;
+  }
+
+  .compare-option {
+    min-height: auto;
+  }
+}
+
+@media (min-width: 781px) {
+  .compare-mode-card {
+    margin-bottom: 18px;
+  }
+}

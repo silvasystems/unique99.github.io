@@ -93,7 +93,7 @@ function scoreFromRank(rank) {
   if (!rank) {
     return {
       category: "Unique Sleepers",
-      points: 95,
+      points: 100,
       bucket: "Unique Sleepers"
     };
   }
@@ -132,7 +132,7 @@ function scoreFromRank(rank) {
 
   return {
     category: "Unique Sleepers",
-    points: interpolateScore(Math.min(rank, 31000), 16001, 31000, 76, 95),
+    points: interpolateScore(Math.min(rank, 31000), 16001, 31000, 76, 100),
     bucket: "Unique Sleepers"
   };
 }
