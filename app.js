@@ -337,6 +337,23 @@ async function analyzeDeck() {
       const manualCommander = commanderInput.value.trim();
       const compareMode = document.querySelector('input[name="compareMode"]:checked')?.value || "global";
 
+      try {
+        statusEl.textContent = "Checking backend analyzer...";
+        setProgress(8);
+        const backendData = await analyzeWithBackend(input, manualCommander, compareMode);
+        statusEl.textContent = "Rendering backend results...";
+        setProgress(100);
+        renderBackendResults(backendData);
+        statusEl.textContent = "Analysis complete.";
+        results.classList.remove("hidden");
+        results.scrollIntoView({ behavior: "smooth", block: "start" });
+        triggerConfetti();
+        return;
+      } catch (backendError) {
+        console.warn("Backend unavailable, falling back to browser analysis.", backendError);
+        statusEl.textContent = "Backend unavailable, using browser analysis...";
+      }
+
       if (!deckText) {
         statusEl.textContent = "Paste a decklist first.";
         return;

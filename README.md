@@ -80,3 +80,28 @@ Updated Swap Ideas so they only show optional uniqueness upgrades:
 - add card must score much higher
 - add card cannot be a Commander Staple or Commander Favorite
 - copy clarifies these are not strict power-level recommendations
+
+
+## Backend Analyze Update
+
+Added:
+
+```txt
+api/analyze.js
+package.json
+vercel.json
+```
+
+The frontend now tries `/api/analyze` first. If the backend is unavailable, it falls back to the original browser-based analysis.
+
+Backend benefits:
+- batched Scryfall card lookups using `/cards/collection`
+- fewer browser requests
+- simple in-memory cache while the function instance is warm
+- backend-ready path for better suggestions and future commander-specific comparison
+
+Deploy notes:
+- This is still a simple Vercel project.
+- Keep the static files in the repo root.
+- Keep mana assets inside `assets/`.
+- Vercel should automatically detect and deploy the `api/analyze.js` function.
