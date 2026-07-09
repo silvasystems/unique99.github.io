@@ -71,3 +71,12 @@ Added:
 - Swap Ideas
 
 Backend/API caching is still a future upgrade.
+
+
+## Swap Logic Hotfix
+
+Updated Swap Ideas so they only show optional uniqueness upgrades:
+- cut card must be common/staple leaning
+- add card must score much higher
+- add card cannot be a Commander Staple or Commander Favorite
+- copy clarifies these are not strict power-level recommendations

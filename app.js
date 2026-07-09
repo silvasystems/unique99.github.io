@@ -634,15 +634,35 @@ async function analyzeDeck() {
         .slice(0, 5);
 
       const commonCards = [...cards]
-        .filter(card => card.edhrec_rank)
-        .sort((a, b) => a.points - b.points || a.edhrec_rank - b.edhrec_rank)
-        .slice(0, 5);
+        .filter(card => card.edhrec_rank && card.points <= 35)
+        .sort((a, b) => a.points - b.points || a.edhrec_rank - b.edhrec_rank);
 
-      const swapPool = unique.length ? unique : synergy;
-      const swaps = commonCards.slice(0, Math.min(5, swapPool.length)).map((cut, index) => {
-        const add = swapPool[index % swapPool.length];
-        return { cut, add, note: `${add.reason} This may raise uniqueness while staying close to your deck's plan.` };
-      });
+      const swapPool = [...scored]
+        .filter(card => card.points >= 70)
+        .filter(card => card.category !== "Commander Staples" && card.category !== "Commander Favorites")
+        .sort((a, b) => b.points - a.points || b.synergyScore - a.synergyScore);
+
+      const swaps = [];
+      const usedAdds = new Set();
+
+      for (const cut of commonCards) {
+        const add = swapPool.find(candidate => {
+          if (usedAdds.has(candidate.name)) return false;
+          if ((candidate.points - cut.points) < 35) return false;
+          return true;
+        });
+
+        if (!add) continue;
+
+        usedAdds.add(add.name);
+        swaps.push({
+          cut,
+          add,
+          note: `${add.reason} This is shown because it is much more unique than ${cut.name}, not because it is automatically stronger.`
+        });
+
+        if (swaps.length >= 5) break;
+      }
 
       return { synergy, unique, swaps };
     }
@@ -693,7 +713,7 @@ async function analyzeDeck() {
       if (!container) return;
 
       if (!swaps || !swaps.length) {
-        container.innerHTML = `<div class="suggestion-empty">No swap ideas found yet.</div>`;
+        container.innerHTML = `<div class="suggestion-empty">No clear uniqueness swaps found. That usually means the suggested cards were not enough of a uniqueness upgrade.</div>`;
         return;
       }
 
@@ -704,7 +724,7 @@ async function analyzeDeck() {
             <span class="swap-arrow">→</span>
             <a href="${swap.add.scryfall_uri}" target="_blank" rel="noopener noreferrer">${escapeHtml(swap.add.name)}</a>
           </div>
-          <div class="swap-note">${escapeHtml(swap.note || "Potential uniqueness upgrade.")}</div>
+          <div class="swap-note">${escapeHtml(swap.note || "Optional uniqueness upgrade.")}</div>
         </div>
       `).join("");
     }
