@@ -166,3 +166,18 @@ Updated:
   - Pet Cards: rank 4,001-10,000, score 54-75
   - Sleepers: rank 10,001+, score 76-100
 - Reduced final deck adjustment to a max of plus or minus 5 points.
+
+
+## Final Score + Logo Update
+
+Updated:
+- Uses the newer uploaded U99 logo from `assets/u99-logo.webp`.
+- Fixed duplicated "Commander Commander Deck Uniqueness Score" copy.
+- Removed the deck-level adjustment entirely.
+- Commander Deck Uniqueness Score now equals the rounded Card Score Average.
+- Updated Card Score Guide:
+  - Staples: rank 1-400, score 1-20
+  - Favorites: rank 401-1,000, score 21-40
+  - Playables: rank 1,001-3,000, score 41-60
+  - Pet Cards: rank 3,001-8,000, score 61-80
+  - Sleepers: rank 8,001+, score 81-100

@@ -2227,3 +2227,31 @@ button.primary {
     height: 54px !important;
   }
 }
+
+
+
+/* Uploaded U99 logo update */
+.logo.logo-image {
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: 0 12px 34px rgba(0,163,255,0.26) !important;
+}
+
+.logo.logo-image img {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  object-fit: cover !important;
+}
+
+@media (max-width: 520px) {
+  .logo.logo-image {
+    width: 54px !important;
+    height: 54px !important;
+  }
+}

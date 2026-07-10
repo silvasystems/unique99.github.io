@@ -207,41 +207,41 @@ const BASIC_LANDS = new Set([
         };
       }
 
-      if (rank <= 500) {
+      if (rank <= 400) {
         return {
           category: "Commander Staples",
-          points: interpolateScore(rank, 1, 500, 1, 15),
+          points: interpolateScore(rank, 1, 400, 1, 20),
           bucket: "Commander Staples"
         };
       }
 
-      if (rank <= 1200) {
+      if (rank <= 1000) {
         return {
           category: "Commander Favorites",
-          points: interpolateScore(rank, 501, 1200, 16, 33),
+          points: interpolateScore(rank, 401, 1000, 21, 40),
           bucket: "Commander Favorites"
         };
       }
 
-      if (rank <= 4000) {
+      if (rank <= 3000) {
         return {
           category: "Playables",
-          points: interpolateScore(rank, 1201, 4000, 34, 53),
+          points: interpolateScore(rank, 1001, 3000, 41, 60),
           bucket: "Playables"
         };
       }
 
-      if (rank <= 10000) {
+      if (rank <= 8000) {
         return {
           category: "Pet Cards",
-          points: interpolateScore(rank, 4001, 10000, 54, 75),
+          points: interpolateScore(rank, 3001, 8000, 61, 80),
           bucket: "Pet Cards"
         };
       }
 
       return {
         category: "Unique Sleepers",
-        points: interpolateScore(Math.min(rank, 31000), 10001, 31000, 76, 100),
+        points: interpolateScore(Math.min(rank, 31000), 8001, 31000, 81, 100),
         bucket: "Unique Sleepers"
       };
     }
